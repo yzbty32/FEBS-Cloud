@@ -1,6 +1,6 @@
 package cc.mrbird.febs.server.system.service.impl;
 
-import cc.mrbird.febs.common.entity.FebsConstant;
+import cc.mrbird.febs.common.entity.constant.FebsConstant;
 import cc.mrbird.febs.common.entity.QueryRequest;
 import cc.mrbird.febs.common.entity.system.Role;
 import cc.mrbird.febs.common.entity.system.RoleMenu;
@@ -11,7 +11,6 @@ import cc.mrbird.febs.server.system.service.IRoleService;
 import cc.mrbird.febs.server.system.service.IUserRoleService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -65,8 +65,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         role.setCreateTime(new Date());
         this.save(role);
 
-        String[] menuIds = role.getMenuIds().split(StringPool.COMMA);
-        setRoleMenus(role, menuIds);
+        if (StringUtils.isNotBlank(role.getMenuIds())) {
+            String[] menuIds = StringUtils.splitByWholeSeparatorPreserveAllTokens(role.getMenuIds(), ",");
+            setRoleMenus(role, menuIds);
+        }
     }
 
     @Override
@@ -87,20 +89,23 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         baseMapper.updateById(role);
 
         roleMenuService.remove(new LambdaQueryWrapper<RoleMenu>().eq(RoleMenu::getRoleId, role.getRoleId()));
-
-        String[] menuIds = role.getMenuIds().split(StringPool.COMMA);
-        setRoleMenus(role, menuIds);
+        if (StringUtils.isNotBlank(role.getMenuIds())) {
+            String[] menuIds = StringUtils.splitByWholeSeparatorPreserveAllTokens(role.getMenuIds(), ",");
+            setRoleMenus(role, menuIds);
+        }
     }
 
     private void setRoleMenus(Role role, String[] menuIds) {
+        List<RoleMenu> roleMenus = new ArrayList<>();
         Arrays.stream(menuIds).forEach(menuId -> {
-            RoleMenu rm = new RoleMenu();
+            RoleMenu roleMenu = new RoleMenu();
             if (StringUtils.isNotBlank(menuId)) {
-                rm.setMenuId(Long.valueOf(menuId));
+                roleMenu.setMenuId(Long.valueOf(menuId));
             }
-            rm.setRoleId(role.getRoleId());
-            this.roleMenuService.save(rm);
+            roleMenu.setRoleId(role.getRoleId());
+            roleMenus.add(roleMenu);
         });
+        this.roleMenuService.saveBatch(roleMenus);
     }
 
 }

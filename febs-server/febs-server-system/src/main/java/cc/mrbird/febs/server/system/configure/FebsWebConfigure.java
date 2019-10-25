@@ -1,11 +1,15 @@
 package cc.mrbird.febs.server.system.configure;
 
+import cc.mrbird.febs.common.entity.constant.FebsConstant;
 import cc.mrbird.febs.server.system.properties.FebsServerSystemProperties;
 import cc.mrbird.febs.server.system.properties.FesbSwaggerProperties;
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.extension.parsers.BlockAttackSqlParser;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -37,7 +41,7 @@ public class FebsWebConfigure {
     /**
      * 注册异步线程池
      */
-    @Bean("febsAsyncThreadPool")
+    @Bean(FebsConstant.ASYNC_POOL)
     public ThreadPoolTaskExecutor asyncThreadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
@@ -109,7 +113,7 @@ public class FebsWebConfigure {
 
     private AuthorizationScope[] scopes(FesbSwaggerProperties swagger) {
         return new AuthorizationScope[]{
-                new AuthorizationScope(swagger.getScope(), "")
+                new AuthorizationScope(swagger.getScope(), StringUtils.EMPTY)
         };
     }
 }

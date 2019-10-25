@@ -1,5 +1,6 @@
 package cc.mrbird.febs.common.utils;
 
+import cc.mrbird.febs.common.entity.constant.PageConstant;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
@@ -107,8 +108,20 @@ public class FebsUtil {
      */
     public static Map<String, Object> getDataTable(IPage<?> pageInfo) {
         Map<String, Object> data = new HashMap<>();
-        data.put("rows", pageInfo.getRecords());
-        data.put("total", pageInfo.getTotal());
+        data.put(PageConstant.ROWS, pageInfo.getRecords());
+        data.put(PageConstant.TOTAL, pageInfo.getTotal());
         return data;
+    }
+
+    /**
+     * 判断是否包含中文
+     *
+     * @param value 内容
+     * @return 结果
+     */
+    public static boolean containChinese(String value) {
+        Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
+        Matcher m = p.matcher(value);
+        return m.find();
     }
 }

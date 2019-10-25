@@ -15,10 +15,6 @@ import org.springframework.context.annotation.PropertySource;
 public class FebsAuthProperties {
 
     /**
-     * client配置
-     */
-    private FebsClientsProperties[] clients = {};
-    /**
      * 免认证访问路径
      */
     private String anonUrl;
@@ -26,4 +22,17 @@ public class FebsAuthProperties {
      * 验证码配置
      */
     private FebsValidateCodeProperties code = new FebsValidateCodeProperties();
+    /**
+     * JWT加签密钥
+     */
+    private String jwtAccessKey;
+    /**
+     * 是否使用 JWT令牌
+     */
+    private Boolean enableJwt;
+
+    /**
+     * 社交登录所使用的 Client
+     */
+    private String socialLoginClientId;
 }
